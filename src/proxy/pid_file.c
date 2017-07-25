@@ -6,12 +6,10 @@
 #endif
 
 #include <assert.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 
 #include <event2/util.h>
@@ -102,20 +100,7 @@ pid_file_write(const int fd, const pid_t child)
     assert((size_t) pid_buf_len < sizeof pid_buf);
     if (safe_write(fd, pid_buf, (size_t) pid_buf_len, -1) !=
         (ssize_t) pid_buf_len) {
-        int ftruncate_return_value = ftruncate(fd, (off_t) 0);
-        if (ftruncate_return_value < 0) {
-            if (errno == EINVAL || errno == EBADF) {
-                fprintf(stderr,
-                        "Unable to open file for writing because "
-                        "of file descriptor errors in ftruncate(): %s\n",
-                        strerror(errno));
-            }
-            if (errno == EROFS) {
-                fprintf(stderr,
-                        "Read-only filesystem: %s\n",
-				        strerror(errno));
-            }
-        }
+        (void) ftruncate(fd, (off_t) 0);
         (void) close(fd);
         return -1;
     }
