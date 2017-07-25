@@ -102,8 +102,10 @@ pid_file_write(const int fd, const pid_t child)
     if (safe_write(fd, pid_buf, (size_t) pid_buf_len, -1) !=
         (ssize_t) pid_buf_len) {
         /*
-        (void) ftruncate(fd, (off_t) 0);
-        */
+         * Since we do not care about errno, then just save it
+         * to a variable. This at least gets rid of the compilation
+         * warnings.
+         */
         save_errno = ftruncate(fd, (off_t) 0);
         (void) close(fd);
         return -1;
