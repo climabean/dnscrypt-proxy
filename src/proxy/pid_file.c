@@ -94,13 +94,17 @@ pid_file_write(const int fd, const pid_t child)
 {
     char pid_buf[50U];
     int  pid_buf_len;
+    int save_errno;
 
     pid_buf_len = evutil_snprintf(pid_buf, sizeof pid_buf, "%llu",
                                   (unsigned long long) child);
     assert((size_t) pid_buf_len < sizeof pid_buf);
     if (safe_write(fd, pid_buf, (size_t) pid_buf_len, -1) !=
         (ssize_t) pid_buf_len) {
+        /*
         (void) ftruncate(fd, (off_t) 0);
+        */
+        save_errno = ftruncate(fd, (off_t) 0);
         (void) close(fd);
         return -1;
     }
